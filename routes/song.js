@@ -1,3 +1,5 @@
+// this file connects the route to the controller functions
+
 const express = require('express');
 const router = express.Router();
 const {

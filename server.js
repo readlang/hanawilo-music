@@ -1,7 +1,10 @@
+// this file is the entrypoint to the server
+
 const bodyparser = require('body-parser');
 const express = require('express');
 const dotenv = require('dotenv');
 
+// this imports the various routes of the server
 const artist = require('./routes/artist')
 const user = require('./routes/user')
 const song = require('./routes/song')
@@ -11,6 +14,7 @@ const app = express();
 
 app.use(bodyparser.json());
 
+// these are defining the routes
 app.use('/artist', artist)
 app.use('/user', user)
 app.use('/song', song)
