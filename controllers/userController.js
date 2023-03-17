@@ -16,7 +16,6 @@ const getUsers = (req, res, next) => {
             console.log(`Searching user by: ${query}`)
         }
     }
-
     res
     .status(200)
     .setHeader('Content-Type', 'application/json')
@@ -36,7 +35,6 @@ const deleteUsers = (req, res, next) => {
     .setHeader('Content-Type', 'application/json')
     .json({ message: 'Delete the users.' })
 }
-
 
 //  For '/user/:userId' endpoints
 const getUser = (req, res, next) => {

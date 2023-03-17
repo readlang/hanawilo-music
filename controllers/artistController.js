@@ -17,8 +17,6 @@ const getArtists = (req, res, next) => {
             console.log(`Searching artist by: ${query}`)
         }
     }
-
-
     res
     .status(200)
     .setHeader('Content-Type', 'application/json')
@@ -38,7 +36,6 @@ const deleteArtists = (req, res, next) => {
     .setHeader('Content-Type', 'application/json')
     .json({ message: 'Delete all artists.' })
 }
-
 
 // For '/artist/:artistId' endpoints
 const getArtist = (req, res, next) => {
@@ -61,7 +58,6 @@ const deleteArtist = (req, res, next) => {
     .setHeader('Content-Type', 'application/json')
     .json({ message: `delete the artist with the ID of ${req.params.artistId}` })
 }
-
 
 module.exports = {
     getArtists,

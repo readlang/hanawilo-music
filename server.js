@@ -3,7 +3,7 @@
 const bodyparser = require('body-parser');
 const express = require('express');
 const dotenv = require('dotenv');
-
+// import cors?
 const logger = require('./middlewares/logger')
 const errorHandler = require('./middlewares/error')
 
@@ -16,9 +16,11 @@ dotenv.config({ path: './config/config.env' });
 const app = express();
 
 app.use(bodyparser.json());
+
 // middleware to use for all routes go here:
 app.use(logger)
 app.use(errorHandler)
+
 // these are defining the routes
 app.use('/artist', artist)
 app.use('/user', user)

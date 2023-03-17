@@ -18,7 +18,6 @@ const getSongs = (req, res, next) => {
             console.log(`Searching song by: ${query}`)
         }
     }
-
     res
     .status(200)
     .setHeader('Content-Type', 'application/json')
@@ -38,7 +37,6 @@ const deleteSongs = (req, res, next) => {
     .setHeader('Content-Type', 'application/json')
     .json({ message: 'Delete many songs.' })
 }
-
 
 //  For '/song/:songId' endpoints
 const getSong = (req, res, next) => {
@@ -61,7 +59,6 @@ const deleteSong = (req, res, next) => {
     .setHeader('Content-Type', 'application/json')
     .json({ message: `delete the song with the ID of ${req.params.songId}` })
 }
-
 
 module.exports = {
     getSongs,
