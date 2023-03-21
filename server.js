@@ -3,7 +3,7 @@
 const bodyparser = require('body-parser');
 const express = require('express');
 const dotenv = require('dotenv');
-// import cors?
+const cors = require('cors')
 const logger = require('./middlewares/logger')
 const errorHandler = require('./middlewares/error')
 
@@ -11,11 +11,18 @@ const errorHandler = require('./middlewares/error')
 const artist = require('./routes/artist')
 const user = require('./routes/user')
 const song = require('./routes/song')
+const connectDB = require('./config/db')
 
 dotenv.config({ path: './config/config.env' });
+
+connectDB(); // the DB connection must be invoked before app.express
+
 const app = express();
 
 app.use(bodyparser.json());
+app.use(cors({
+    origin: '*'
+}))
 
 // middleware to use for all routes go here:
 app.use(logger)
@@ -32,5 +39,7 @@ const server = app.listen(PORT, () => {
     console.log(`Server is listening on PORT: ${PORT}`)
 })
 
-
-// add a handler for process.on() to handle unhandled rejection with a exit code of 1
+process.on('unhandledRejection', (err, promise) => {
+    console.log( `Error: ${err.message}` ) 
+    server.close(() => process.exit(1))
+})

@@ -1,5 +1,7 @@
+const User = require('../models/User');
+
 // For '/user' endpoints
-const getUsers = (req, res, next) => {
+const getUsers = async (req, res, next) => {
 
     if (Object.keys(req.query).length) {
         const {
@@ -16,46 +18,76 @@ const getUsers = (req, res, next) => {
             console.log(`Searching user by: ${query}`)
         }
     }
-    res
-    .status(200)
-    .setHeader('Content-Type', 'application/json')
-    .json({ message: 'Show me all the users!' })
+    try {
+        const users = await User.find()        
+        res
+        .status(200)
+        .setHeader('Content-Type', 'application/json')
+        .json(users)
+    } catch (error) {
+        next(error)
+    }
 }
 
-const postUser = (req, res, next) => {
-    res
-    .status(201)
-    .setHeader('Content-Type', 'application/json')
-    .json({ message: 'Create a new user.' })
+const postUser = async (req, res, next) => {
+    try {
+        const user = await User.create(req.body)
+        res
+        .status(201)
+        .setHeader('Content-Type', 'application/json')
+        .json( user )
+    } catch (error) {
+        next(error)
+    }
 }
 
-const deleteUsers = (req, res, next) => {
-    res
-    .status(200)
-    .setHeader('Content-Type', 'application/json')
-    .json({ message: 'Delete the users.' })
+const deleteUsers = async (req, res, next) => {
+    try {
+        const deletedUsers = await User.deleteMany()
+        res
+        .status(200)
+        .setHeader('Content-Type', 'application/json')
+        .json( deletedUsers )
+    } catch (error) {
+        next(error)
+    }
 }
 
 //  For '/user/:userId' endpoints
-const getUser = (req, res, next) => {
-    res
-    .status(200)
-    .setHeader('Content-Type', 'application/json')
-    .json({ message: `show me the user with the ID of ${req.params.userId}` })
+const getUser = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.userId)
+        res
+        .status(200)
+        .setHeader('Content-Type', 'application/json')
+        .json( user )
+    } catch (error) {
+        next(error)
+    }
 }
 
-const updateUser = (req, res, next) => {
-    res
-    .status(200)
-    .setHeader('Content-Type', 'application/json')
-    .json({ message: `update the user with the ID of ${req.params.userId}` })
+const updateUser = async (req, res, next) => {
+    try {
+        const user = await User.findByIdAndUpdate( req.params.songId, req.body, {new: true} )
+        res
+        .status(200)
+        .setHeader('Content-Type', 'application/json')
+        .json( user )
+    } catch (error) {
+        next(error)
+    }
 }
 
-const deleteUser = (req, res, next) => {
-    res
-    .status(200)
-    .setHeader('Content-Type', 'application/json')
-    .json({ message: `delete the user with the ID of ${req.params.userId}` })
+const deleteUser = async (req, res, next) => {
+    try {
+        const deletedUser = await User.findByIdAndDelete( req.params.userId )
+        res
+        .status(200)
+        .setHeader('Content-Type', 'application/json')
+        .json( deletedUser )
+    } catch (error) {
+        next(error)
+    }
 }
 
 module.exports = {
