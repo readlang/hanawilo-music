@@ -68,7 +68,7 @@ const getUser = async (req, res, next) => {
 
 const updateUser = async (req, res, next) => {
     try {
-        const user = await User.findByIdAndUpdate( req.params.songId, req.body, {new: true} )
+        const user = await User.findByIdAndUpdate( req.params.userId, req.body, {new: true} )
         res
         .status(200)
         .setHeader('Content-Type', 'application/json')

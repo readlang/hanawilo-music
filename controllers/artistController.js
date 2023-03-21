@@ -68,7 +68,7 @@ const getArtist = async (req, res, next) => {
 
 const updateArtist = async (req, res, next) => {
     try {
-        const artist = await Artist.findByIdAndUpdate( req.params.songId, req.body, {new: true} )
+        const artist = await Artist.findByIdAndUpdate( req.params.artistId, req.body, {new: true} )
         res
         .status(200)
         .setHeader('Content-Type', 'application/json')
@@ -80,7 +80,7 @@ const updateArtist = async (req, res, next) => {
 
 const deleteArtist = async (req, res, next) => {
     try {
-        const deletedArtist = await Artist.findByIdAndDelete( req.params.userId )
+        const deletedArtist = await Artist.findByIdAndDelete( req.params.artistId )
         res
         .status(200)
         .setHeader('Content-Type', 'application/json')

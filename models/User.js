@@ -12,7 +12,7 @@ const UserSchema = new Schema({
         type: String,
         required: true,
         enum: [
-            'Male', 'Female'
+            'Male', 'Female', 'male', 'female'
         ]
     },
     age: {
