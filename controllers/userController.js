@@ -3,21 +3,27 @@ const User = require('../models/User');
 // For '/user' endpoints
 const getUsers = async (req, res, next) => {
 
+    const filter = {}
+    const options = {}
+    // if req has query params, destructure them into the various variables:
     if (Object.keys(req.query).length) {
         const {
+            limit,
+            sortByAge,
             userName,
-            gender,
+            age,
+            //gender,
         } = req.query
 
-        const filter = []
-
-        if (userName) filter.push(userName)
-        if (gender) filter.push(gender)
-
-        for (const query of filter) {
-            console.log(`Searching user by: ${query}`)
+        if (userName) filter.userName = userName
+        if (age) filter.age = age
+        
+        if (limit) options.limit = limit
+        if (sortByAge) options.sort = {
+            category: sortByAge === 'asc' ? 1 : -1
         }
     }
+
     try {
         const users = await User.find()        
         res

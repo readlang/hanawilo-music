@@ -1,6 +1,27 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+// this is known as a sub-document schema
+const RatingSchema = new Schema({
+    rating: {
+        type: Number,
+        min: 1,
+        max: 5,
+        required: true
+    },
+    text: {
+        type: String,
+        required: true
+    },
+    author: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }
+}, {
+    timestamps: true
+})
+
+// this is the main schema
 const SongSchema = new Schema({
     songTitle: {
         type: String,
@@ -15,7 +36,8 @@ const SongSchema = new Schema({
     genre: {
         type: String,
         required: true
-    }
+    },
+    ratings: [RatingSchema]
 }, {
     timestamps: true
 })
