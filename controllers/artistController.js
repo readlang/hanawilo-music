@@ -24,8 +24,9 @@ const getArtists = async (req, res, next) => {
             category: sortByGenre === 'asc' ? 1 : -1
         }
     }
+    console.log("filter: ", filter, "options: ", options)
     try {
-        const artists = await Artist.find()
+        const artists = await Artist.find({}, filter, options)
         res
         .status(200)
         .setHeader('Content-Type', 'application/json')

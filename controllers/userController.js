@@ -10,9 +10,10 @@ const getUsers = async (req, res, next) => {
         const {
             limit,
             sortByAge,
+
             userName,
             age,
-            //gender,
+            
         } = req.query
 
         if (userName) filter.userName = userName
@@ -20,12 +21,15 @@ const getUsers = async (req, res, next) => {
         
         if (limit) options.limit = limit
         if (sortByAge) options.sort = {
-            category: sortByAge === 'asc' ? 1 : -1
+            age: sortByAge === 'asc' ? 1 : -1
         }
     }
-
+    console.log("filter: ", filter, "options: ", options)
     try {
-        const users = await User.find()        
+        // find() default returns everything
+        // takes 3 optional arguments
+        // find(specificID, return items w specific fields , limits (pagination) and sorting (asc and des) )
+        const users = await User.find({}, filter, options)    //     
         res
         .status(200)
         .setHeader('Content-Type', 'application/json')

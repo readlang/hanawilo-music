@@ -23,8 +23,9 @@ const getSongs = async (req, res, next) => {
             category: sortByArtist === 'asc' ? 1 : -1
         }
     }
+    console.log("filter: ", filter, "options: ", options)
     try {
-        const songs = await Song.find()   
+        const songs = await Song.find({}, filter, options)   
         res
         .status(200)
         .setHeader('Content-Type', 'application/json')
@@ -133,6 +134,27 @@ const deleteSongRatings = async (req, res, next) => {
     } catch (error) {
         next(error)
     }
+}
+
+const getSongRating = async (req, res, next) => {
+    try {
+        const song = await Song.findById( req.params.songId )
+        const rating = await song /////////////////////////////////////////////////////////////
+        res
+        .status(200)
+        .setHeader('Content-Type', 'application/json')
+        .json(rating)
+    } catch (error) {
+        next(error)
+    }
+}
+
+const updateSongRating = async (req, res, next) => {
+
+}
+
+const deleteSongRating = async (req, res, next) => {
+
 }
 
 module.exports = {
