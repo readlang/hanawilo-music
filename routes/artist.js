@@ -9,7 +9,10 @@ const {
     
     getArtist,
     updateArtist,
-    deleteArtist
+    deleteArtist, 
+
+    postArtistImage
+
 } = require('../controllers/artistController')
 
 router.route('/') 
@@ -21,5 +24,8 @@ router.route('/:artistId')
     .get(getArtist)
     .put(updateArtist)
     .delete(deleteArtist)
+
+router.route('/:artistId/image')
+    .post(postArtistImage)
 
 module.exports = router

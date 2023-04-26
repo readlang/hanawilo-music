@@ -5,15 +5,15 @@ const getUsers = async (req, res, next) => {
 
     const filter = {}
     const options = {}
+    const fields = []
+
     // if req has query params, destructure them into the various variables:
     if (Object.keys(req.query).length) {
         const {
-            limit,
-            sortByAge,
-
             userName,
             age,
-            
+            limit,
+            sortByAge,
         } = req.query
 
         if (userName) filter.userName = userName
@@ -25,11 +25,10 @@ const getUsers = async (req, res, next) => {
         }
     }
     console.log("filter: ", filter, "options: ", options)
+
     try {
-        // find() default returns everything
-        // takes 3 optional arguments
-        // find(specificID, return items w specific fields , limits (pagination) and sorting (asc and des) )
-        const users = await User.find({}, filter, options)    //     
+        const users = await User.find(filter, fields, options)  
+
         res
         .status(200)
         .setHeader('Content-Type', 'application/json')
@@ -42,10 +41,13 @@ const getUsers = async (req, res, next) => {
 const postUser = async (req, res, next) => {
     try {
         const user = await User.create(req.body)
-        res
-        .status(201)
-        .setHeader('Content-Type', 'application/json')
-        .json( user )
+        
+        sendTokenResponse(user, 201, res)
+        
+        // res
+        // .status(201)
+        // .setHeader('Content-Type', 'application/json')
+        // .json( user )
     } catch (error) {
         next(error)
     }
@@ -98,6 +100,19 @@ const deleteUser = async (req, res, next) => {
     } catch (error) {
         next(error)
     }
+}
+
+const sendTokenResponse = (user, statusCode, res) => {
+    const token = user.getSignedJwtToken()
+
+    const options = {
+        expires: new Date( Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000 ),
+        httpOnly: true
+    }
+    res
+    .status(statusCode)
+    .cookie('token', token, options)
+    .json({success: true, token})
 }
 
 module.exports = {

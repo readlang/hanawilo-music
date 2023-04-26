@@ -1,18 +1,20 @@
 const Artist = require('../models/Artist')
+const path = require('path') // built in node module allows you to read the path
 
 // For '/artist' endpoints
 const getArtists = async (req, res, next) => {
 
     const filter = {}
     const options = {}
+    const fields = [] // example: ["firstName", "lastName", "genre"]
 
     if (Object.keys(req.query).length) {
         const {
-            limit,
-            sortByGenre,
             firstName,
             lastName,
-            genre
+            genre, 
+            limit,
+            sortByGenre
         } = req.query
 
         if (firstName) filter.firstName = firstName
@@ -21,12 +23,14 @@ const getArtists = async (req, res, next) => {
 
         if (limit) options.limit = limit
         if (sortByGenre) options.sort = {
-            category: sortByGenre === 'asc' ? 1 : -1
+            genre: sortByGenre === 'asc' ? 1 : -1
         }
     }
     console.log("filter: ", filter, "options: ", options)
+
     try {
-        const artists = await Artist.find({}, filter, options)
+        const artists = await Artist.find(filter, fields, options)
+        
         res
         .status(200)
         .setHeader('Content-Type', 'application/json')
@@ -97,6 +101,32 @@ const deleteArtist = async (req, res, next) => {
     }
 }
 
+const postArtistImage = async (req, res, next) => {
+    try {
+        const err = {msg: "Error uploading image"}
+        if (!req.files ) next(err)
+        
+        const file = req.files.file
+
+        if (!file.mimetype.startsWith('image')) next(err)
+        if (file.size > process.env.MAX_FILE_SIZE) next(err)
+
+        file.name = `photo_${req.params.artistId}${path.parse(file.name).ext}`
+        const filePath = process.env.FILE_UPLOAD_PATH + file.name
+
+        file.mv(filePath, async (err) => {
+            await Artist.findByIdAndUpdate(req.params.artistId, { image: file.name })
+            res
+            .status(200)
+            .setHeader('Content-Type', 'application/json')
+            .json({msg: "Image uploaded!"})
+            
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
     getArtists,
     postArtist,
@@ -104,5 +134,7 @@ module.exports = {
 
     getArtist,
     updateArtist,
-    deleteArtist
+    deleteArtist,
+
+    postArtistImage
 }
