@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const crypto = require('crypto')
 
 // For '/user' endpoints
 const getUsers = async (req, res, next) => {
@@ -119,6 +120,80 @@ const login = async (req, res, next) => {
     sendTokenResponse(user, 200, res)
 }
 
+// to request a password reset email
+const forgotPassword = async (req, res, next) => {
+    const user = await User.findOne({ email: req.body.email })
+
+    console.log(user)
+
+    if (!user) throw new Error('User not found')
+
+    const resetToken = user.getResetPasswordToken()
+
+    try {
+        // you would send an email here to reset password
+        // npm "Nodemailer" is a tool to do this
+        await user.save({ validateBeforeSave: false }) // will skip any pre-hooks
+
+        res.status(200)
+        .setHeader('Content-Type', 'application/json')
+        .json({ 
+            msg: `Password has been reset with token: ${resetToken}`
+        })
+    } catch (error) {
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
+
+        await user.save({ validateBeforeSave: false }) // will skip any pre-hooks
+        throw new Error('Failed to reset password')
+    }
+}
+
+// for a user to change their password after requesting an email password reset
+const resetPassword = async (req, res, next) => {
+    const resetPasswordToken = crypto.createHash('sha256').update(req.query.resetToken).digest('hex')
+    
+    const user = await User.findOne({
+        resetPasswordToken,
+        resetPasswordExpire: { $gt: Date.now() }  // greaterthan
+    })
+
+    if (!user) throw new Error('Invalid token from user!')
+
+    user.password = req.body.password
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save() // save to the database
+
+    sendTokenResponse(user, 200, res) 
+}
+
+// for a user who knows their password to change it
+const updatePassword = async (req, res, next) => {
+    const user = await User.findById(req.user.id).select('+password')
+
+    const passwordMatches = await user.matchPassword(req.body.password)
+    if (!passwordMatches) throw new Error('Password is incorrect')
+
+    user.password = req.body.newPassword
+
+    await user.save() // this actually saves the data to DB
+
+    sendTokenResponse(user, 200, res)
+}
+
+const logout = async (req, res, next) => {
+    res.cookie('token', 'none', {
+        expires: new Date(Date.now() + 10 * 1000 ),
+        httpOnly: true // so the cookie can't be accessed by the client side (preventing XSS)
+    })
+    res
+    .status(200)
+    .setHeader('Content-Type', 'application/json')
+    .json({success: true, msg: 'Successfully logged out!'})
+}
+
 const sendTokenResponse = (user, statusCode, res) => {
     const token = user.getSignedJwtToken()
 
@@ -140,5 +215,10 @@ module.exports = {
     getUser,
     updateUser,
     deleteUser,
-    login
+    login,
+
+    forgotPassword,
+    resetPassword,
+    updatePassword,
+    logout
 }

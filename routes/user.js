@@ -8,6 +8,10 @@ const {
     deleteUsers,
     
     login,
+    forgotPassword,
+    resetPassword,
+    updatePassword,
+    logout,
 
     getUser,
     updateUser,
@@ -24,6 +28,19 @@ router.route('/')
 // make sure this is NOT a protected route, since it is the login
 router.route('/login')
     .post(login)
+
+// these next 4 routes must come before the /:userId endpoint
+router.route('/forgotPassword')
+    .post(forgotPassword)
+
+router.route('/resetPassword')
+    .put(resetPassword)
+
+router.route('/updatePassword')
+    .put(protectedRoute, updatePassword)
+
+router.route('/logout')
+    .get(protectedRoute, logout)
 
 router.route('/:userId')
     .get(protectedRoute, getUser) 
