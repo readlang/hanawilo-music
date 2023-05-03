@@ -16,7 +16,7 @@ const UserSchema = new Schema({
         type: String,
         required: true,
         enum: [
-            'Male', 'Female', 'male', 'female'
+            'Male', 'Female', 'male', 'female', 'MALE', 'FEMALE'
         ]
     },
     age: {
@@ -81,10 +81,10 @@ UserSchema.pre('save', async function(next) {
     next()
 })
 
-UserSchema.post('save', function() {  // not sure if 'save' is correct
-    this.gender = this.gender.toUpperCase();
-    // don't have to execute next in a post hook
-})
+// UserSchema.post('save', function() {  // not sure if 'save' is correct
+//     this.gender = this.gender.toUpperCase();
+//     // don't have to execute next in a post hook
+// })
 
 // these are not pre or post hooks
 // they are methods on the user class instance

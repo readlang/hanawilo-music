@@ -33,14 +33,12 @@ app.use(cors({
 // middleware to use for all routes go here:
 app.use(cookieParser())
 app.use(fileupload()) // allows grabbing data out of uploaded files
-
 app.use(mongoSanitize())
 app.use(xss())
-
 app.use(hpp())
 app.use(helmet())
 app.use(logger)
-app.use(errorHandler)
+// app.use(errorHandler) must be further down in middleware stack to catch errors!
 
 // this is a pretty relaxed rate limiting
 const limiter = rateLimit({
@@ -60,7 +58,12 @@ const server = app.listen(PORT, () => {
     console.log(`Server is listening on PORT: ${PORT}`)
 })
 
+// errorHandler must be below routes to catch errors
+app.use(errorHandler)
+
 process.on('unhandledRejection', (err, promise) => {
+    console.log( `Source: 'server.js' file` )
     console.log( `Error: ${err.message}` ) 
-    server.close(() => process.exit(1))
+    console.log( err.stack ) 
+    server.close(() => process.exit(1)) // comment this line out to keep the server on
 })

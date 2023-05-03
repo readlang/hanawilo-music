@@ -105,82 +105,95 @@ const deleteUser = async (req, res, next) => {
 
 // for '/login' endpoint
 const login = async (req, res, next) => {
-    const { email, password } = req.body
+    try {
+        const { email, password } = req.body
+        if (!email || !password) throw new Error("Please provide an email and password")
 
-    if (!email || !password) throw new Error("Please provide an email and password")
+        const user = await User.findOne({ email }).select('+password')
+        if (!user) throw new Error("User or email does not exist")
 
-    const user = await User.findOne({ email }).select('+password')
+        const isMatch = await user.matchPassword(password)
+        if (!isMatch) throw new Error('Invalid Password')
 
-    if (!user) throw new Error("User or email does not exist")
-
-    const isMatch = await user.matchPassword(password)
-
-    if (!isMatch) throw new Error('Invalid Credentials')
-
-    sendTokenResponse(user, 200, res)
+        sendTokenResponse(user, 200, res)
+        
+    } catch (error) {
+        next(error)
+    }
 }
 
 // to request a password reset email
 const forgotPassword = async (req, res, next) => {
-    const user = await User.findOne({ email: req.body.email })
-
-    console.log(user)
-
-    if (!user) throw new Error('User not found')
-
-    const resetToken = user.getResetPasswordToken()
-
     try {
-        // you would send an email here to reset password
-        // npm "Nodemailer" is a tool to do this
-        await user.save({ validateBeforeSave: false }) // will skip any pre-hooks
+        const user = await User.findOne({ email: req.body.email })
+        console.log(user)
+        if (!user) throw new Error('User/email not found')
+    
+        const resetToken = user.getResetPasswordToken()
 
-        res.status(200)
-        .setHeader('Content-Type', 'application/json')
-        .json({ 
-            msg: `Password has been reset with token: ${resetToken}`
-        })
+        try {
+            // you would send an email here to reset password
+            // npm "Nodemailer" is a tool to do this
+            await user.save({ validateBeforeSave: false }) // will skip any pre-hooks
+
+            res.status(200)
+            .setHeader('Content-Type', 'application/json')
+            .json({ 
+                msg: `Password has been reset with reset token: ${resetToken}`
+            })
+        } catch (error) {
+            user.resetPasswordToken = undefined;
+            user.resetPasswordExpire = undefined;
+
+            await user.save({ validateBeforeSave: false }) // will skip any pre-hooks
+            next( new Error('Failed to reset password') )
+        }
+
     } catch (error) {
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpire = undefined;
-
-        await user.save({ validateBeforeSave: false }) // will skip any pre-hooks
-        throw new Error('Failed to reset password')
+        next(error)
     }
 }
 
 // for a user to change their password after requesting an email password reset
 const resetPassword = async (req, res, next) => {
-    const resetPasswordToken = crypto.createHash('sha256').update(req.query.resetToken).digest('hex')
-    
-    const user = await User.findOne({
-        resetPasswordToken,
-        resetPasswordExpire: { $gt: Date.now() }  // greaterthan
-    })
-
-    if (!user) throw new Error('Invalid token from user!')
-
-    user.password = req.body.password
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
-
-    await user.save() // save to the database
-
-    sendTokenResponse(user, 200, res) 
+    try {
+        const resetPasswordToken = crypto.createHash('sha256').update(req.query.resetToken).digest('hex')
+        
+        const user = await User.findOne({
+            resetPasswordToken,
+            resetPasswordExpire: { $gt: Date.now() }  // greaterthan
+        })
+        
+        if (!user) throw new Error('Invalid reset token from user!')
+        
+        user.password = req.body.password
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
+        
+        await user.save() // save to the database
+        
+        sendTokenResponse(user, 200, res) 
+    } catch (error) {
+        next(error)
+    }
 }
 
 // for a user who knows their password to change it
 const updatePassword = async (req, res, next) => {
-    const user = await User.findById(req.user.id).select('+password')
-
-    const passwordMatches = await user.matchPassword(req.body.password)
-    if (!passwordMatches) throw new Error('Password is incorrect')
-
-    user.password = req.body.newPassword
-
-    await user.save() // this actually saves the data to DB
-
-    sendTokenResponse(user, 200, res)
+    try {
+        const user = await User.findById(req.user.id).select('+password')
+        
+        const passwordMatches = await user.matchPassword(req.body.password)
+        if (!passwordMatches) throw new Error('Password is incorrect')
+        
+        user.password = req.body.newPassword
+        
+        await user.save() // this actually saves the data to DB
+        
+        sendTokenResponse(user, 200, res)
+    } catch (error) {
+        next(error)
+    }
 }
 
 const logout = async (req, res, next) => {

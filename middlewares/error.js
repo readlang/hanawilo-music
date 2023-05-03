@@ -1,9 +1,13 @@
 // only invoked if there is an error
 
 const errorHandler = (err, req, res, next) => {
-    console.log(err.stack);
+    console.log("-- Source: errorHandler --");
+    console.log(err.stack.split("\n", 2).join(" -"));
 
-    res.status(err.statusCode || 500).json({
+    res
+    .status(err.statusCode || 500)
+    .setHeader('Content-Type', 'application/json')
+    .json({
         success: false,
         error: err.message || 'Server Error'
     });
