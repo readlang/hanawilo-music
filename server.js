@@ -17,6 +17,8 @@ const xss = require('xss-clean')
 const artist = require('./routes/artist')
 const user = require('./routes/user')
 const song = require('./routes/song')
+const test = require('./routes/test')
+
 const connectDB = require('./config/db')
 
 dotenv.config({ path: './config/config.env' });
@@ -34,9 +36,12 @@ app.use(cors({
 app.use(cookieParser())
 app.use(fileupload()) // allows grabbing data out of uploaded files
 app.use(mongoSanitize())
-app.use(xss())
+app.use(xss()) // sanitizes user input in post body, get queries, url params
 app.use(hpp())
-app.use(helmet())
+app.use(helmet({
+    contentSecurityPolicy: false, //disables these features of helmet
+    frameguard: false,
+})) // sets various http headers for security including CORS and frames
 app.use(logger)
 // app.use(errorHandler) must be further down in middleware stack to catch errors!
 
@@ -51,6 +56,7 @@ app.use(limiter)
 app.use('/artist', artist)
 app.use('/user', user)
 app.use('/song', song)
+app.use('/test', test)
 
 const PORT = process.env.PORT || 5001
 

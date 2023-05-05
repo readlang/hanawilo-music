@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <title>Sample Site</title>
+    </head>
+    <body>
+
+        <h1>hello world!</h1>
+        <h2>welcome home</h2>
+
+        
+        <p>The referrer of the current document is:</p>
+
+        <p id="demo"></p>
+
+        <script>
+            document.getElementById("demo").innerHTML = window.location.href;
+            console.log(window.location.href);
+            console.log(window.parent.location);
+            console.log(window.parent);
+            console.log(document.referrer); // give page that linked to current page
+            console.log(document.location.href);
+            console.log(document.location.ancestorOrigins);
+        </script>
+        
+    </body>
+</html>
