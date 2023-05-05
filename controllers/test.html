@@ -15,13 +15,15 @@
         <p id="demo"></p>
 
         <script>
-            document.getElementById("demo").innerHTML = window.location.href;
-            console.log(window.location.href);
-            console.log(window.parent.location);
-            console.log(window.parent);
-            console.log(document.referrer); // give page that linked to current page
-            console.log(document.location.href);
-            console.log(document.location.ancestorOrigins);
+            document.getElementById("demo").innerHTML = document.referrer;
+            console.log(window.location.href);  // iframe child url
+            console.log(window.parent.location);  // give the  
+            console.log(window.parent);           // gives the 
+            console.log(document.referrer); // give page that linked to current page - WORKS to get parent url
+            console.log(document.location.href);  // iframe child url
+            console.log(document.location.ancestorOrigins);  // WORKS to give the parent url!! not in firefox
+
+            
         </script>
         
     </body>
